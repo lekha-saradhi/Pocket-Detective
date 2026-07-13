@@ -3,11 +3,15 @@ import { extractText } from "../services/ocr";
 import { decodeQR } from "../services/qr";
 import { extractUrls } from "../services/url";
 
+import { processText } from "../services/pipeline";
 function UploadPage() {
   const [ocrText, setOcrText] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [urls, setUrls] = useState<string[]>([]);
   const [qrUrl, setQrUrl] = useState("");
+
+const [text, setText] = useState("");
+const [textResult, setTextResult] = useState("");
 
   async function handleOCR(
     e: React.ChangeEvent<HTMLInputElement>
@@ -50,6 +54,14 @@ function UploadPage() {
       console.error(error);
     }
   }
+  function handleText() {
+  const result = processText(text);
+
+  console.log(result);
+
+  setTextResult(JSON.stringify(result, null, 2));
+}
+
 
   return (
     <div
@@ -62,6 +74,27 @@ function UploadPage() {
       <h1>Pipeline Testing</h1>
 
       <hr />
+      <h2>Text Test</h2>
+
+<textarea
+  rows={6}
+  style={{ width: "100%" }}
+  value={text}
+  onChange={(e) => setText(e.target.value)}
+/>
+
+<br />
+<br />
+
+<button onClick={handleText}>
+  Process Text
+</button>
+
+<h3>Normalized Output</h3>
+
+<pre>{textResult}</pre>
+
+<hr />
 
       <h2>OCR Test</h2>
 
