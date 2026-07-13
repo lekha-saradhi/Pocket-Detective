@@ -12,12 +12,14 @@ export async function decodeQR(
 ): Promise<QRResult> {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    const objectUrl = URL.createObjectURL(image);
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
       if (!ctx) {
+        URL.revokeObjectURL(objectUrl);
         reject(new Error("Canvas not supported"));
         return;
       }
@@ -40,8 +42,13 @@ export async function decodeQR(
         canvas.height
       );
 
+      // Free memory
+      URL.revokeObjectURL(objectUrl);
+
       if (!code) {
-        reject(new Error("QR Code not found"));
+        resolve({
+          url: "",
+        });
         return;
       }
 
@@ -50,8 +57,11 @@ export async function decodeQR(
       });
     };
 
-    img.onerror = () => reject(new Error("Failed to load image"));
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Failed to load image"));
+    };
 
-    img.src = URL.createObjectURL(image);
+    img.src = objectUrl;
   });
 }

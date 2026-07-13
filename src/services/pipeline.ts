@@ -1,14 +1,41 @@
-export async function processImage(file: File) {
-    // preprocess
-    // OCR
-    // normalize
+import { extractText } from "./ocr";
+import { decodeQR } from "./qr";
+import { normalizeInput } from "./normalize";
+
+import type { NormalizedInput } from "../types/schema";
+
+/**
+ * Process plain text input
+ */
+export function processText(text: string): NormalizedInput {
+  return normalizeInput("sms", text);
 }
 
-export async function processQR(file: File) {
-    // decode
-    // normalize
+/**
+ * Process screenshot/image
+ */
+export async function processImage(
+  image: File | Blob
+): Promise<NormalizedInput> {
+  const result = await extractText(image);
+
+  return normalizeInput(
+    "screenshot",
+    result.text
+  );
 }
 
-export function processText(text: string) {
-    // normalize
+/**
+ * Process QR Code
+ */
+export async function processQR(
+  image: File | Blob
+): Promise<NormalizedInput> {
+  const result = await decodeQR(image);
+
+  return normalizeInput(
+    "qr",
+    "",
+    result.url
+  );
 }
