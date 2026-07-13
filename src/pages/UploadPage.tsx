@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { extractText } from "../services/ocr";
 import { decodeQR } from "../services/qr";
+import { extractUrls } from "../services/url";
 
 function UploadPage() {
   const [ocrText, setOcrText] = useState("");
   const [confidence, setConfidence] = useState(0);
-
+  const [urls, setUrls] = useState<string[]>([]);
   const [qrUrl, setQrUrl] = useState("");
 
   async function handleOCR(
@@ -15,36 +16,46 @@ function UploadPage() {
 
     if (!file) return;
 
-    const result = await extractText(file);
+    try {
+      const result = await extractText(file);
 
-    setOcrText(result.text);
+      setOcrText(result.text);
+      setConfidence(result.confidence);
 
-    setConfidence(result.confidence);
+      // Extract URLs from OCR text
+      const extractedUrls = extractUrls(result.text);
+      setUrls(extractedUrls);
+
+      console.log("OCR Result:", result);
+      console.log("Extracted URLs:", extractedUrls);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function handleQR(
-  e: React.ChangeEvent<HTMLInputElement>
-) {
-  const file = e.target.files?.[0];
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  try {
-    const result = await decodeQR(file);
+    try {
+      const result = await decodeQR(file);
 
-    console.log(result);
+      console.log("QR Result:", result);
 
-    setQrUrl(result.url);
-  } catch (error) {
-    console.error(error);
+      setQrUrl(result.url);
+    } catch (error) {
+      console.error(error);
+    }
   }
-}
 
   return (
     <div
       style={{
-        padding: 40,
-        maxWidth: 900,
+        padding: "40px",
+        maxWidth: "900px",
         margin: "auto",
       }}
     >
@@ -66,7 +77,19 @@ function UploadPage() {
 
       <h3>Confidence</h3>
 
-      <p>{confidence}</p>
+      <p>{confidence.toFixed(2)}%</p>
+
+      <h3>Extracted URLs</h3>
+
+      {urls.length === 0 ? (
+        <p>No URLs Found</p>
+      ) : (
+        <ul>
+          {urls.map((url, index) => (
+            <li key={index}>{url}</li>
+          ))}
+        </ul>
+      )}
 
       <hr />
 
@@ -80,7 +103,13 @@ function UploadPage() {
 
       <h3>Decoded URL</h3>
 
-      <p>{qrUrl}</p>
+      {qrUrl ? (
+        <a href={qrUrl} target="_blank" rel="noreferrer">
+          {qrUrl}
+        </a>
+      ) : (
+        <p>No QR Code Found</p>
+      )}
     </div>
   );
 }
