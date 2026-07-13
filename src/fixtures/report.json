@@ -1,0 +1,47 @@
+{
+    "caseId": "PD-1001",
+    "trustScore": 85,
+    "threatLevel": "High",
+    "evidence": [
+      {
+        "id": "otp_request",
+        "label": "OTP Request Detected",
+        "weight": 25,
+        "confidence": 1.0,
+        "source": "rule"
+      },
+      {
+        "id": "fake_domain",
+        "label": "Suspicious URL",
+        "weight": 20,
+        "confidence": 0.9,
+        "source": "rule"
+      }
+    ],
+    "timeline": [
+  {
+    "title": "Message Received",
+    "description": "User received a suspicious SMS."
+  },
+  {
+    "title": "OCR Processing",
+    "description": "OCR extracted the message."
+  },
+  {
+    "title": "Detection Analysis",
+    "description": "Detection engine analyzed the content."
+  },
+  {
+    "title": "Trust Score",
+    "description": "Trust score calculated."
+  }
+],
+    
+    "recommendations": [
+      "Do not click the suspicious link.",
+      "Do not share your OTP with anyone.",
+      "Block the sender.",
+      "Report the message to your bank or cybercrime portal."
+    ],
+    "timestamp": 1783920000000
+  }
